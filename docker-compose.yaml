@@ -15,10 +15,12 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      - app-db
+      app-db:
+        condition: service_healthy
   app-db:
     container_name: app-db
     image: mysql:8.4.0
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
     healthcheck:
@@ -30,8 +32,7 @@ services:
       - mysql-db:/var/lib/mysql
     ports:
       - 3306:3306
-    restart: always
-  d:
+  reverse_proxy:
     container_name: reverse_proxy
     image: reverse_proxy:1.0.0
     restart: always
@@ -42,3 +43,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:80
+    volumes:
+      - ./data/nginx:/etc/nginx/conf.d
+
